@@ -61,6 +61,15 @@ public class BookAddController implements Initializable {
             return;
         }
 
+        if (bookName.length() > 100) {
+            try {
+                throw new BookTitleTooLongException("Book title is too long. No book can have a title longer than 200 characters.");
+            } catch (BookTitleTooLongException e) {
+                AlertMaker.showMaterialDialog(rootPane, mainContainer, new ArrayList<>(), "Invalid Book Title", e.getMessage());
+                return;
+            }
+        }
+
         if (isInEditMode) {
             handleEditOperation();
             return;
@@ -85,6 +94,13 @@ public class BookAddController implements Initializable {
     private void cancel(ActionEvent event) {
         Stage stage = (Stage) rootPane.getScene().getWindow();
         stage.close();
+    }
+
+    public class BookTitleTooLongException extends Exception {
+
+        public BookTitleTooLongException(String message) {
+            super(message);
+        }
     }
 
     private void checkData() {
