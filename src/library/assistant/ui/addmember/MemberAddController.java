@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import library.assistant.alert.AlertMaker;
 import library.assistant.database.DataHelper;
 import library.assistant.database.DatabaseHandler;
+import library.assistant.exceptions.CustomException;
 import library.assistant.ui.listmember.MemberListController;
 import library.assistant.ui.listmember.MemberListController.Member;
 import org.apache.commons.lang3.StringUtils;
@@ -53,16 +54,14 @@ public class MemberAddController implements Initializable {
     }
 
     @FXML
-    private void addMember(ActionEvent event) {
+    private void addMember(ActionEvent event) throws CustomException.InsufficientDataException {
         String mName = StringUtils.trimToEmpty(name.getText());
         String mID = StringUtils.trimToEmpty(id.getText());
         String mMobile = StringUtils.trimToEmpty(mobile.getText());
         String mEmail = StringUtils.trimToEmpty(email.getText());
 
-        Boolean flag = mName.isEmpty() || mID.isEmpty() || mMobile.isEmpty() || mEmail.isEmpty();
-        if (flag) {
-            AlertMaker.showMaterialDialog(rootPane, mainContainer, new ArrayList<>(), "Insufficient Data", "Please enter data in all fields.");
-            return;
+        if (mName.isEmpty() || mID.isEmpty() || mMobile.isEmpty() || mEmail.isEmpty()) {
+            throw new CustomException.InsufficientDataException(rootPane, mainContainer, "Please enter data in all fields.");
         }
 
         if (isInEditMode) {

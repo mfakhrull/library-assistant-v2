@@ -19,8 +19,11 @@ import library.assistant.alert.AlertMaker;
 import library.assistant.data.model.Book;
 import library.assistant.database.DataHelper;
 import library.assistant.database.DatabaseHandler;
+import library.assistant.exceptions.CustomException;
+import library.assistant.exceptions.CustomException.BookTitleTooLongException;
 import library.assistant.ui.listbook.BookListController;
 import org.apache.commons.lang3.StringUtils;
+import library.assistant.exceptions.CustomException.InsufficientDataException;
 
 public class BookAddController implements Initializable {
 
@@ -50,24 +53,18 @@ public class BookAddController implements Initializable {
     }
 
     @FXML
-    private void addBook(ActionEvent event) {
+    private void addBook(ActionEvent event) throws InsufficientDataException,BookTitleTooLongException {
         String bookID = StringUtils.trimToEmpty(id.getText());
         String bookAuthor = StringUtils.trimToEmpty(author.getText());
         String bookName = StringUtils.trimToEmpty(title.getText());
         String bookPublisher = StringUtils.trimToEmpty(publisher.getText());
 
         if (bookID.isEmpty() || bookAuthor.isEmpty() || bookName.isEmpty()) {
-            AlertMaker.showMaterialDialog(rootPane, mainContainer, new ArrayList<>(), "Insufficient Data", "Please enter data in all fields.");
-            return;
+            throw new CustomException.InsufficientDataException(rootPane, mainContainer, "Please enter data in all fields.");
         }
 
         if (bookName.length() > 100) {
-            try {
-                throw new BookTitleTooLongException("Book title is too long. No book can have a title longer than 200 characters.");
-            } catch (BookTitleTooLongException e) {
-                AlertMaker.showMaterialDialog(rootPane, mainContainer, new ArrayList<>(), "Invalid Book Title", e.getMessage());
-                return;
-            }
+            throw new CustomException.BookTitleTooLongException(rootPane, mainContainer, "Book Title is too long");
         }
 
         if (isInEditMode) {
@@ -94,13 +91,6 @@ public class BookAddController implements Initializable {
     private void cancel(ActionEvent event) {
         Stage stage = (Stage) rootPane.getScene().getWindow();
         stage.close();
-    }
-
-    public class BookTitleTooLongException extends Exception {
-
-        public BookTitleTooLongException(String message) {
-            super(message);
-        }
     }
 
     private void checkData() {
